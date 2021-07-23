@@ -22,6 +22,21 @@ Examples of query on InfluxDB data source:
 
 **volume**: `SELECT max("volume") FROM "ticker" WHERE ("market" =~ /^$market$/ AND "pair" =~ /^$pair$/) AND $timeFilter GROUP BY time($__interval) fill(linear)`
 
+### Sample Query wirh timescaledb
+
+SELECT time_bucket('30 sec', timestmp) AS "time",
+  first(price, timestmp) AS open,
+  last(price, timestmp) AS close,
+  max(price) AS high,
+  min(price) AS low,
+  sum(amount) AS volume
+FROM other_trade_other_other
+WHERE 
+  $__timeFilter(timestmp)
+GROUP BY time
+ORDER BY time ASC;
+
+
 ### Screenshots
 
 Main view with plugin options:
