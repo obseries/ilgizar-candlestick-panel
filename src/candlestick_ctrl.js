@@ -102,7 +102,7 @@ export class CandleStickCtrl extends MetricsPanelCtrl {
     // open, high, low, and close, otherwise
     // do not parse any further.
     const keys = ['open', 'high', 'low', 'close'];
-    if (series.filter(dp => (keys.indexOf(dp.alias) > -1)).length < 4) {
+    if (series.filter(dp => (keys.indexOf(dp.alias.text) > -1)).length < 4) {
       return [];
     }
 
@@ -110,7 +110,7 @@ export class CandleStickCtrl extends MetricsPanelCtrl {
     let index = 4;
     for (let i = 0; i < series.length; i++) {
       if (series[i] !== undefined) {
-        switch (series[i].alias) {
+        switch (series[i].alias.text) {
           case 'open':
             result[0] = series[i];
             break;
@@ -124,7 +124,8 @@ export class CandleStickCtrl extends MetricsPanelCtrl {
             result[3] = series[i];
             break;
           default:
-            result[index++] = series[i];
+            //disabilitato temporaneamente
+            //result[index++] = series[i];
             break;
         }
       }
@@ -134,8 +135,8 @@ export class CandleStickCtrl extends MetricsPanelCtrl {
   }
 
   onDataReceived(dataList) {
-    this.series = dataList.map((item, index) => {
-      return this.seriesHandler(item, index);
+    this.series = dataList[0].columns.map((item, index) => {
+      return this.seriesHandler(datalist[0], index);
     });
     this.refreshColors();
     this.data = this.parseSeries(this.series);
@@ -144,8 +145,10 @@ export class CandleStickCtrl extends MetricsPanelCtrl {
 
   seriesHandler(seriesData, index) {
     let series = new TimeSeries({
-      datapoints: seriesData.datapoints,
-      alias: seriesData.target,
+      datapoints: seriesData.rows.map(item => {
+        return [item[index], item[0]];
+      }),
+      alias: seriesData.columns[index],
     });
 
     series.flotpairs = series.getFlotPairs(this.panel.nullPointMode);
